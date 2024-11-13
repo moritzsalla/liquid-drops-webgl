@@ -92,8 +92,7 @@ export const Canvas = () => {
 			webFrag.setUniform(`u_color_${i}`, colorToVec4(color, alpha));
 		}
 
-		webFrag.setUniform("u_resolution", [canvas.width, canvas.height]);
-		webFrag.render();
+		webFrag.init();
 
 		return () => {
 			window.removeEventListener("resize", resizeCanvas);
