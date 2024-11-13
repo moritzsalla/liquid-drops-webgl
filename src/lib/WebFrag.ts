@@ -6,9 +6,16 @@ export class WebFrag {
 	private frameId: number | null = null;
 
 	constructor(private canvas: HTMLCanvasElement) {
-		const gl = canvas.getContext("webgl");
+		const gl = canvas.getContext("webgl", {
+			alpha: true,
+			premultipliedAlpha: false,
+		});
 		if (!gl) throw new Error("WebGL not supported");
 		this.gl = gl;
+
+		// Enable blending
+		this.gl.enable(this.gl.BLEND);
+		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
 		// Setup viewport
 		this.gl.viewport(0, 0, canvas.width, canvas.height);
@@ -120,10 +127,10 @@ export class WebFrag {
 	}
 }
 
-export const colorToVec4 = (color: string) => {
+export const colorToVec4 = (color: string, alpha = 1) => {
 	const hex = parseInt(color.slice(1), 16);
 	const r = (hex >> 16) / 255;
 	const g = ((hex >> 8) & 0xff) / 255;
 	const b = (hex & 0xff) / 255;
-	return [r, g, b, 1];
+	return [r, g, b, alpha];
 };

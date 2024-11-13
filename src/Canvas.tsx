@@ -41,27 +41,32 @@ void main() {
     
     // Combine noise layers for more organic look
     float combined = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
-    combined = combined * 0.7 + 0.3; // Adjust contrast
+    combined = combined * 0.7 + 0.3;
     
     // Smooth step for more defined color regions
     float blend = smoothstep(0.3, 0.7, combined);
+    
+    // Add distance-based alpha
+    vec2 center = vec2(0.5, 0.5);
+    float dist = length(uv - center);
     
     // Mix colors based on noise
     vec4 color;
     if (blend < 0.33) {
         color = mix(u_color_0, u_color_1, smoothstep(0.0, 0.33, blend) * 3.0);
-    } else if (blend < 0.56) {
+    } else if (blend < 0.66) {
         color = mix(u_color_1, u_color_2, smoothstep(0.33, 0.66, blend) * 3.0 - 1.0);
     } else {
         color = mix(u_color_2, u_color_0, smoothstep(0.66, 1.0, blend) * 3.0 - 2.0);
     }
-
+    
     gl_FragColor = color;
 }`;
 
 export const Canvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const [colors, setColors] = useState(["#61210F", "#CE8147", "#E5F2C9"]);
+	const [alpha, setAlpha] = useState(1);
 	const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
 	useEffect(() => {
@@ -84,7 +89,7 @@ export const Canvas = () => {
 		// Add all colors to the fragment shader
 		for (let i = 0; i < colors.length; i++) {
 			const color = colors[i];
-			webFrag.setUniform(`u_color_${i}`, colorToVec4(color));
+			webFrag.setUniform(`u_color_${i}`, colorToVec4(color, alpha));
 		}
 
 		webFrag.setUniform("u_resolution", [canvas.width, canvas.height]);
@@ -94,7 +99,7 @@ export const Canvas = () => {
 			window.removeEventListener("resize", resizeCanvas);
 			webFrag.destroy();
 		};
-	}, [colors]);
+	}, [colors, alpha]);
 
 	return (
 		<div
@@ -149,6 +154,18 @@ export const Canvas = () => {
 						type='checkbox'
 						checked={hasBackgroundImage}
 						onChange={(e) => setHasBackgroundImage(e.target.checked)}
+					/>
+				</div>
+
+				<div>
+					<label style={{ paddingRight: "1rem" }}>Alpha</label>
+					<input
+						type='range'
+						min='0'
+						max='1'
+						step='0.01'
+						value={alpha}
+						onChange={(e) => setAlpha(parseFloat(e.target.value))}
 					/>
 				</div>
 			</div>
