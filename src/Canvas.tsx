@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 
 const FRAGMENT_SHADER = `#ifdef GL_ES
@@ -59,10 +59,10 @@ void main() {
     gl_FragColor = color;
 }`;
 
-const COLORS = ["#0000FF", "#FFFF00", "#00FFFF"];
-
 export const Canvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
+	const [colors, setColors] = useState(["#61210F", "#CE8147", "#E5F2C9"]);
+	const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
 	useEffect(() => {
 		const canvas = ref.current;
@@ -82,8 +82,8 @@ export const Canvas = () => {
 		webFrag.setShader(FRAGMENT_SHADER);
 
 		// Add all colors to the fragment shader
-		for (let i = 0; i < COLORS.length; i++) {
-			const color = COLORS[i];
+		for (let i = 0; i < colors.length; i++) {
+			const color = colors[i];
 			webFrag.setUniform(`u_color_${i}`, colorToVec4(color));
 		}
 
@@ -94,15 +94,64 @@ export const Canvas = () => {
 			window.removeEventListener("resize", resizeCanvas);
 			webFrag.destroy();
 		};
-	}, []);
+	}, [colors]);
 
 	return (
-		<canvas
-			ref={ref}
+		<div
 			style={{
-				width: "100%",
-				height: "100%",
+				backgroundImage: hasBackgroundImage
+					? "url('https://media.cntraveler.com/photos/5eb18e42fc043ed5d9779733/16:9/w_4288,h_2412,c_limit/BlackForest-Germany-GettyImages-147180370.jpg')"
+					: "none",
+				backgroundSize: "cover",
 			}}
-		/>
+		>
+			<div
+				style={{
+					width: "20rem",
+					height: "20rem",
+					borderRadius: "50%",
+					margin: "5rem",
+					overflow: "hidden",
+				}}
+			>
+				<canvas
+					ref={ref}
+					style={{
+						width: "100%",
+						height: "100%",
+					}}
+				/>
+			</div>
+
+			<div style={{ background: "white", padding: "1rem" }}>
+				{colors.map((color, i) => {
+					return (
+						<div key={i + color}>
+							<label style={{ paddingRight: "1rem" }}>
+								Color {i + 1}
+							</label>
+							<input
+								type='color'
+								value={color}
+								onChange={(e) => {
+									const newColors = [...colors];
+									newColors[i] = e.target.value;
+									setColors(newColors);
+								}}
+							/>
+						</div>
+					);
+				})}
+
+				<div>
+					<label style={{ paddingRight: "1rem" }}>Background Image</label>
+					<input
+						type='checkbox'
+						checked={hasBackgroundImage}
+						onChange={(e) => setHasBackgroundImage(e.target.checked)}
+					/>
+				</div>
+			</div>
+		</div>
 	);
 };
