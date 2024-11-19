@@ -10,6 +10,11 @@ export const Canvas = () => {
 	const [backgroundColor, setBackgroundColor] = useState("#89537A");
 	const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
+	const [noiseScale, setNoiseScale] = useState(1.0);
+	const [noiseSpeed, setNoiseSpeed] = useState(0.2);
+	const [noiseIntensity, setNoiseIntensity] = useState(0.7);
+	const [noiseWeights, setNoiseWeights] = useState({ x: 0.5, y: 0.3, z: 0.2 });
+
 	useEffect(() => {
 		const canvas = ref.current;
 		if (!canvas) return;
@@ -33,13 +38,31 @@ export const Canvas = () => {
 			webFrag.setUniform(`u_color_${i}`, colorToVec4(color, alphas[i]));
 		}
 
+		webFrag.setUniform("u_noiseScale", noiseScale);
+		webFrag.setUniform("u_noiseSpeed", noiseSpeed);
+		webFrag.setUniform("u_noiseIntensity", noiseIntensity);
+		webFrag.setUniform("u_noiseWeights", [
+			noiseWeights.x,
+			noiseWeights.y,
+			noiseWeights.z,
+		]);
+
 		webFrag.init();
 
 		return () => {
 			window.removeEventListener("resize", resizeCanvas);
 			webFrag.destroy();
 		};
-	}, [colors, alphas]);
+	}, [
+		colors,
+		alphas,
+		noiseScale,
+		noiseSpeed,
+		noiseIntensity,
+		noiseWeights.x,
+		noiseWeights.y,
+		noiseWeights.z,
+	]);
 
 	return (
 		<div
@@ -158,6 +181,62 @@ export const Canvas = () => {
 						value={blur}
 						onChange={(e) => setBlur(parseFloat(e.target.value))}
 					/>
+				</div>
+
+				<div>
+					<div>
+						<label style={{ paddingRight: "1rem" }}>Noise Scale</label>
+						<input
+							type='range'
+							min='0'
+							max='2'
+							step='0.1'
+							value={noiseScale}
+							onChange={(e) => setNoiseScale(parseFloat(e.target.value))}
+						/>
+					</div>
+					<div>
+						<label style={{ paddingRight: "1rem" }}>Noise Speed</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							value={noiseSpeed}
+							onChange={(e) => setNoiseSpeed(parseFloat(e.target.value))}
+						/>
+					</div>
+					<div>
+						<label style={{ paddingRight: "1rem" }}>
+							Noise Intensity
+						</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							value={noiseIntensity}
+							onChange={(e) =>
+								setNoiseIntensity(parseFloat(e.target.value))
+							}
+						/>
+					</div>
+					<div>
+						<label style={{ paddingRight: "1rem" }}>Noise Weights</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							value={noiseWeights.x}
+							onChange={(e) =>
+								setNoiseWeights({
+									...noiseWeights,
+									x: parseFloat(e.target.value),
+								})
+							}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
