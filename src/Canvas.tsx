@@ -16,6 +16,7 @@ const SPRING_CONFIG: SpringOptions = {
 	damping: 30,
 };
 
+// TODO optimize blur by using shader pass instead of CSS filter
 export const Canvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const webFragRef = useRef<WebFrag | null>(null);
@@ -80,21 +81,18 @@ export const Canvas = () => {
 			window.removeEventListener("resize", resizeCanvas);
 			webFragRef.current?.destroy();
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Debug logging for motion value changes
 	useMotionValueEvent(noiseScale, "change", (latest) => {
-		console.log("noiseScale changed:", latest);
 		webFragRef.current?.setUniform("u_noiseScale", latest);
 	});
 
 	useMotionValueEvent(noiseSpeed, "change", (latest) => {
-		console.log("noiseSpeed changed:", latest);
 		webFragRef.current?.setUniform("u_noiseSpeed", latest);
 	});
 
 	useMotionValueEvent(noiseIntensity, "change", (latest) => {
-		console.log("noiseIntensity changed:", latest);
 		webFragRef.current?.setUniform("u_noiseIntensity", latest);
 	});
 
@@ -104,7 +102,7 @@ export const Canvas = () => {
 			noiseWeightY.get(),
 			noiseWeightZ.get(),
 		];
-		console.log("noiseWeights changed:", weights);
+
 		webFragRef.current?.setUniform("u_noiseWeights", weights);
 	};
 
@@ -119,7 +117,7 @@ export const Canvas = () => {
 	) => {
 		const color = colorMotionValue.get();
 		const alpha = alphaMotionValue.get();
-		console.log(`color${index} changed:`, color, alpha);
+
 		webFragRef.current?.setUniform(
 			`u_color_${index}`,
 			colorToVec4(color, alpha),
@@ -162,7 +160,6 @@ export const Canvas = () => {
 							type='color'
 							defaultValue={color1.get()}
 							onChange={(e) => {
-								console.log("Color 1 input change:", e.target.value);
 								color1.set(e.target.value);
 							}}
 						/>
@@ -173,7 +170,6 @@ export const Canvas = () => {
 							type='color'
 							defaultValue={color2.get()}
 							onChange={(e) => {
-								console.log("Color 2 input change:", e.target.value);
 								color2.set(e.target.value);
 							}}
 						/>
@@ -184,7 +180,6 @@ export const Canvas = () => {
 							type='color'
 							defaultValue={color3.get()}
 							onChange={(e) => {
-								console.log("Color 3 input change:", e.target.value);
 								color3.set(e.target.value);
 							}}
 						/>
