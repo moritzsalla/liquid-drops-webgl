@@ -64,52 +64,28 @@ export const Canvas = () => {
 		noiseWeights.z,
 	]);
 
+	const backgroundImage = hasBackgroundImage
+		? "url('https://media.cntraveler.com/photos/5eb18e42fc043ed5d9779733/16:9/w_4288,h_2412,c_limit/BlackForest-Germany-GettyImages-147180370.jpg')"
+		: "none";
+
 	return (
 		<div
-			id='wrapper'
+			className='wrapper'
 			style={{
-				backgroundImage: hasBackgroundImage
-					? "url('https://media.cntraveler.com/photos/5eb18e42fc043ed5d9779733/16:9/w_4288,h_2412,c_limit/BlackForest-Germany-GettyImages-147180370.jpg')"
-					: "none",
-				backgroundSize: "cover",
+				backgroundImage,
 				backgroundColor,
 			}}
 		>
-			<div
-				style={{
-					width: "20rem",
-					height: "20rem",
-					borderRadius: "50%",
-					margin: "5rem",
-					overflow: "hidden",
-				}}
-			>
-				<canvas
-					ref={ref}
-					style={{
-						width: "100%",
-						height: "100%",
-						filter: `blur(${blur}px)`,
-					}}
-				/>
+			<div className='inner'>
+				<canvas ref={ref} style={{ filter: `blur(${blur}px)` }} />
 			</div>
 
-			<div
-				id='controls'
-				style={{
-					background: "white",
-					padding: "1rem",
-					display: "flex",
-					gap: "5rem",
-				}}
-			>
+			<div className='controls'>
 				<div>
 					{colors.map((color, i) => {
 						return (
 							<div key={i + color}>
-								<label style={{ paddingRight: "1rem" }}>
-									Color {i + 1}
-								</label>
+								<label>Color {i + 1}</label>
 								<input
 									type='color'
 									value={color}
@@ -126,9 +102,7 @@ export const Canvas = () => {
 
 				<div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>
-							Background Image
-						</label>
+						<label>Background Image</label>
 						<input
 							type='checkbox'
 							checked={hasBackgroundImage}
@@ -136,9 +110,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>
-							Background Color
-						</label>
+						<label>Background Color</label>
 						<input
 							type='color'
 							value={backgroundColor}
@@ -151,9 +123,7 @@ export const Canvas = () => {
 					{alphas.map((alpha, i) => {
 						return (
 							<div key={i + alpha}>
-								<label style={{ paddingRight: "1rem" }}>
-									Alpha {i + 1}
-								</label>
+								<label>Alpha {i + 1}</label>
 								<input
 									type='range'
 									min='0'
@@ -172,20 +142,22 @@ export const Canvas = () => {
 				</div>
 
 				<div>
-					<label style={{ paddingRight: "1rem" }}>Blur</label>
-					<input
-						type='range'
-						min='0'
-						max='50'
-						step='1'
-						value={blur}
-						onChange={(e) => setBlur(parseFloat(e.target.value))}
-					/>
+					<div>
+						<label>Blur</label>
+						<input
+							type='range'
+							min='0'
+							max='50'
+							step='1'
+							value={blur}
+							onChange={(e) => setBlur(parseFloat(e.target.value))}
+						/>
+					</div>
 				</div>
 
 				<div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>Noise Scale</label>
+						<label>Noise Scale</label>
 						<input
 							type='range'
 							min='0'
@@ -196,7 +168,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>Noise Speed</label>
+						<label>Noise Speed</label>
 						<input
 							type='range'
 							min='0'
@@ -207,9 +179,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>
-							Noise Intensity
-						</label>
+						<label>Noise Intensity</label>
 						<input
 							type='range'
 							min='0'
@@ -222,7 +192,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label style={{ paddingRight: "1rem" }}>Noise Weights</label>
+						<label>Noise Weights</label>
 						<input
 							type='range'
 							min='0'
