@@ -31,11 +31,11 @@ code {
 }
 
 .inner {
-	width: 20rem;
-	height: 20rem;
+	width: 30vw;
+	height: 30vw;
 	border-radius: 50%;
 	overflow: hidden;
-	margin: 10rem;
+	margin: 15vh;
 }
 
 .controls {

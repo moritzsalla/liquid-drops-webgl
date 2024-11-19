@@ -1,25 +1,45 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import {
+	motion,
+	useMotionTemplate,
+	useMotionValue,
+	useMotionValueEvent,
+	useSpring,
+	type SpringOptions,
+} from "framer-motion";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
 
+const SPRING_CONFIG: SpringOptions = {
+	bounce: 0,
+	mass: 2,
+	damping: 30,
+};
+
 export const Canvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
-	const [colors, setColors] = useState(["#89537A", "#9A4343", "#F4AE47"]);
-	const [alphas, setAlphas] = useState([0, 1, 1]);
-	const [blur, setBlur] = useState(4);
-	const [backgroundColor, setBackgroundColor] = useState("#89537A");
-	const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
+	const webFragRef = useRef<WebFrag | null>(null);
 
-	const [noiseScale, setNoiseScale] = useState(1.0);
-	const [noiseSpeed, setNoiseSpeed] = useState(0.2);
-	const [noiseIntensity, setNoiseIntensity] = useState(0.7);
-	const [noiseWeights, setNoiseWeights] = useState({ x: 0.5, y: 0.3, z: 0.2 });
+	// Motion values
+	const noiseScale = useSpring(1.0, SPRING_CONFIG);
+	const noiseSpeed = useSpring(0.2, SPRING_CONFIG);
+	const noiseIntensity = useSpring(0.7, SPRING_CONFIG);
+	const noiseWeightX = useSpring(0.5, SPRING_CONFIG);
+	const noiseWeightY = useSpring(0.3, SPRING_CONFIG);
+	const noiseWeightZ = useSpring(0.2, SPRING_CONFIG);
+	const blur = useSpring(4, SPRING_CONFIG);
+	const color1 = useMotionValue("#89537A");
+	const color2 = useMotionValue("#9A4343");
+	const color3 = useMotionValue("#F4AE47");
+	const alpha1 = useSpring(0, SPRING_CONFIG);
+	const alpha2 = useSpring(1, SPRING_CONFIG);
+	const alpha3 = useSpring(1, SPRING_CONFIG);
 
+	// Setup canvas and WebFrag instance
 	useEffect(() => {
 		const canvas = ref.current;
 		if (!canvas) return;
 
-		// Set canvas size to match display size
 		const resizeCanvas = () => {
 			const { width, height } = canvas.getBoundingClientRect();
 			canvas.width = width;
@@ -29,128 +49,180 @@ export const Canvas = () => {
 		resizeCanvas();
 		window.addEventListener("resize", resizeCanvas);
 
-		const webFrag = new WebFrag(canvas);
-		webFrag.setShader(FRAGMENT_SHADER);
+		webFragRef.current = new WebFrag(canvas);
+		webFragRef.current.setShader(FRAGMENT_SHADER);
 
-		// Add all colors to the fragment shader
-		for (let i = 0; i < colors.length; i++) {
-			const color = colors[i];
-			webFrag.setUniform(`u_color_${i}`, colorToVec4(color, alphas[i]));
-		}
-
-		webFrag.setUniform("u_noiseScale", noiseScale);
-		webFrag.setUniform("u_noiseSpeed", noiseSpeed);
-		webFrag.setUniform("u_noiseIntensity", noiseIntensity);
-		webFrag.setUniform("u_noiseWeights", [
-			noiseWeights.x,
-			noiseWeights.y,
-			noiseWeights.z,
+		// Initial uniform setup
+		webFragRef.current.setUniform("u_noiseScale", noiseScale.get());
+		webFragRef.current.setUniform("u_noiseSpeed", noiseSpeed.get());
+		webFragRef.current.setUniform("u_noiseIntensity", noiseIntensity.get());
+		webFragRef.current.setUniform("u_noiseWeights", [
+			noiseWeightX.get(),
+			noiseWeightY.get(),
+			noiseWeightZ.get(),
 		]);
+		webFragRef.current.setUniform(
+			"u_color_0",
+			colorToVec4(color1.get(), alpha1.get()),
+		);
+		webFragRef.current.setUniform(
+			"u_color_1",
+			colorToVec4(color2.get(), alpha2.get()),
+		);
+		webFragRef.current.setUniform(
+			"u_color_2",
+			colorToVec4(color3.get(), alpha3.get()),
+		);
 
-		webFrag.init();
+		webFragRef.current.init();
 
 		return () => {
 			window.removeEventListener("resize", resizeCanvas);
-			webFrag.destroy();
+			webFragRef.current?.destroy();
 		};
-	}, [
-		colors,
-		alphas,
-		noiseScale,
-		noiseSpeed,
-		noiseIntensity,
-		noiseWeights.x,
-		noiseWeights.y,
-		noiseWeights.z,
-	]);
+	}, []);
 
-	const backgroundImage = hasBackgroundImage
-		? "url('https://media.cntraveler.com/photos/5eb18e42fc043ed5d9779733/16:9/w_4288,h_2412,c_limit/BlackForest-Germany-GettyImages-147180370.jpg')"
-		: "none";
+	// Debug logging for motion value changes
+	useMotionValueEvent(noiseScale, "change", (latest) => {
+		console.log("noiseScale changed:", latest);
+		webFragRef.current?.setUniform("u_noiseScale", latest);
+	});
+
+	useMotionValueEvent(noiseSpeed, "change", (latest) => {
+		console.log("noiseSpeed changed:", latest);
+		webFragRef.current?.setUniform("u_noiseSpeed", latest);
+	});
+
+	useMotionValueEvent(noiseIntensity, "change", (latest) => {
+		console.log("noiseIntensity changed:", latest);
+		webFragRef.current?.setUniform("u_noiseIntensity", latest);
+	});
+
+	const updateNoiseWeights = () => {
+		const weights = [
+			noiseWeightX.get(),
+			noiseWeightY.get(),
+			noiseWeightZ.get(),
+		];
+		console.log("noiseWeights changed:", weights);
+		webFragRef.current?.setUniform("u_noiseWeights", weights);
+	};
+
+	useMotionValueEvent(noiseWeightX, "change", updateNoiseWeights);
+	useMotionValueEvent(noiseWeightY, "change", updateNoiseWeights);
+	useMotionValueEvent(noiseWeightZ, "change", updateNoiseWeights);
+
+	const handleColorChange = (
+		colorMotionValue: any,
+		alphaMotionValue: any,
+		index: number,
+	) => {
+		const color = colorMotionValue.get();
+		const alpha = alphaMotionValue.get();
+		console.log(`color${index} changed:`, color, alpha);
+		webFragRef.current?.setUniform(
+			`u_color_${index}`,
+			colorToVec4(color, alpha),
+		);
+	};
+
+	useMotionValueEvent(color1, "change", () =>
+		handleColorChange(color1, alpha1, 0),
+	);
+	useMotionValueEvent(color2, "change", () =>
+		handleColorChange(color2, alpha2, 1),
+	);
+	useMotionValueEvent(color3, "change", () =>
+		handleColorChange(color3, alpha2, 2),
+	);
+	useMotionValueEvent(alpha1, "change", () =>
+		handleColorChange(color1, alpha1, 0),
+	);
+	useMotionValueEvent(alpha2, "change", () =>
+		handleColorChange(color2, alpha2, 1),
+	);
+	useMotionValueEvent(alpha3, "change", () =>
+		handleColorChange(color3, alpha3, 2),
+	);
 
 	return (
-		<div
-			className='wrapper'
-			style={{
-				backgroundImage,
-				backgroundColor,
-			}}
-		>
+		<div className='wrapper'>
 			<div className='inner'>
-				<canvas ref={ref} style={{ filter: `blur(${blur}px)` }} />
+				<motion.canvas
+					ref={ref}
+					style={{ filter: useMotionTemplate`blur(${blur}px)` }}
+				/>
 			</div>
 
 			<div className='controls'>
 				<div>
-					{colors.map((color, i) => {
-						return (
-							<div key={i + color}>
-								<label>Color {i + 1}</label>
-								<input
-									type='color'
-									value={color}
-									onChange={(e) => {
-										const newColors = [...colors];
-										newColors[i] = e.target.value;
-										setColors(newColors);
-									}}
-								/>
-							</div>
-						);
-					})}
-				</div>
-
-				<div>
 					<div>
-						<label>Background Image</label>
-						<input
-							type='checkbox'
-							checked={hasBackgroundImage}
-							onChange={(e) => setHasBackgroundImage(e.target.checked)}
-						/>
-					</div>
-					<div>
-						<label>Background Color</label>
+						<label>Color 1</label>
 						<input
 							type='color'
-							value={backgroundColor}
-							onChange={(e) => setBackgroundColor(e.target.value)}
+							defaultValue={color1.get()}
+							onChange={(e) => {
+								console.log("Color 1 input change:", e.target.value);
+								color1.set(e.target.value);
+							}}
+						/>
+					</div>
+					<div>
+						<label>Color 2</label>
+						<input
+							type='color'
+							defaultValue={color2.get()}
+							onChange={(e) => {
+								console.log("Color 2 input change:", e.target.value);
+								color2.set(e.target.value);
+							}}
+						/>
+					</div>
+					<div>
+						<label>Color 3</label>
+						<input
+							type='color'
+							defaultValue={color3.get()}
+							onChange={(e) => {
+								console.log("Color 3 input change:", e.target.value);
+								color3.set(e.target.value);
+							}}
 						/>
 					</div>
 				</div>
 
 				<div>
-					{alphas.map((alpha, i) => {
-						return (
-							<div key={i + alpha}>
-								<label>Alpha {i + 1}</label>
-								<input
-									type='range'
-									min='0'
-									max='1'
-									step='0.1'
-									value={alpha}
-									onChange={(e) => {
-										const newAlphas = [...alphas];
-										newAlphas[i] = parseFloat(e.target.value);
-										setAlphas(newAlphas);
-									}}
-								/>
-							</div>
-						);
-					})}
-				</div>
-
-				<div>
 					<div>
-						<label>Blur</label>
+						<label>Alpha 1</label>
 						<input
 							type='range'
 							min='0'
-							max='50'
-							step='1'
-							value={blur}
-							onChange={(e) => setBlur(parseFloat(e.target.value))}
+							max='1'
+							step='0.1'
+							defaultValue={alpha1.get()}
+							onChange={(e) => alpha1.set(parseFloat(e.target.value))}
+						/>
+					</div>
+					<div>
+						<label>Alpha 2</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							defaultValue={alpha2.get()}
+							onChange={(e) => alpha2.set(parseFloat(e.target.value))}
+						/>
+					</div>
+					<div>
+						<label>Alpha 3</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							defaultValue={alpha3.get()}
+							onChange={(e) => alpha3.set(parseFloat(e.target.value))}
 						/>
 					</div>
 				</div>
@@ -163,8 +235,10 @@ export const Canvas = () => {
 							min='0'
 							max='2'
 							step='0.1'
-							value={noiseScale}
-							onChange={(e) => setNoiseScale(parseFloat(e.target.value))}
+							defaultValue={noiseScale.get()}
+							onChange={(e) =>
+								noiseScale.set(parseFloat(e.target.value))
+							}
 						/>
 					</div>
 					<div>
@@ -174,8 +248,10 @@ export const Canvas = () => {
 							min='0'
 							max='1'
 							step='0.1'
-							value={noiseSpeed}
-							onChange={(e) => setNoiseSpeed(parseFloat(e.target.value))}
+							defaultValue={noiseSpeed.get()}
+							onChange={(e) =>
+								noiseSpeed.set(parseFloat(e.target.value))
+							}
 						/>
 					</div>
 					<div>
@@ -185,26 +261,66 @@ export const Canvas = () => {
 							min='0'
 							max='1'
 							step='0.1'
-							value={noiseIntensity}
+							defaultValue={noiseIntensity.get()}
 							onChange={(e) =>
-								setNoiseIntensity(parseFloat(e.target.value))
+								noiseIntensity.set(parseFloat(e.target.value))
 							}
 						/>
 					</div>
+				</div>
+
+				<div>
 					<div>
-						<label>Noise Weights</label>
+						<label>Noise Weight X</label>
 						<input
 							type='range'
 							min='0'
 							max='1'
 							step='0.1'
-							value={noiseWeights.x}
+							defaultValue={noiseWeightX.get()}
 							onChange={(e) =>
-								setNoiseWeights({
-									...noiseWeights,
-									x: parseFloat(e.target.value),
-								})
+								noiseWeightX.set(parseFloat(e.target.value))
 							}
+						/>
+					</div>
+					<div>
+						<label>Noise Weight Y</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							defaultValue={noiseWeightY.get()}
+							onChange={(e) =>
+								noiseWeightY.set(parseFloat(e.target.value))
+							}
+						/>
+					</div>
+					<div>
+						<label>Noise Weight Z</label>
+						<input
+							type='range'
+							min='0'
+							max='1'
+							step='0.1'
+							defaultValue={noiseWeightZ.get()}
+							onChange={(e) =>
+								noiseWeightZ.set(parseFloat(e.target.value))
+							}
+						/>
+					</div>
+				</div>
+
+				<div>
+					<div>
+						<label>Blur</label>
+						<input
+							type='range'
+							min='0'
+							max='50'
+							step='1'
+							defaultValue={blur.get()}
+							onChange={(e) => blur.set(parseFloat(e.target.value))}
 						/>
 					</div>
 				</div>
