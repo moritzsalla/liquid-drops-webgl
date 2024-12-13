@@ -11,6 +11,7 @@ import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
 import { COLORS } from "./colors";
 import { useDropShadow } from "./useDropShadow";
+import { Controls } from "./Control";
 
 const SPRING_CONFIG: SpringOptions = {
 	bounce: 0,
@@ -160,189 +161,24 @@ export const Canvas = () => {
 				</div>
 			</motion.div>
 
-			<div className='controls'>
-				<div>
-					<div>
-						<label>Taste 1</label>
-						{Object.entries(COLORS).map(([name, color]) => (
-							<button
-								key={name}
-								style={{ backgroundColor: color }}
-								onClick={() => {
-									// @ts-expect-error -- it's possible but motion says no
-									color1.set(color);
-								}}
-							>
-								{name}
-							</button>
-						))}
-					</div>
-					<div>
-						<label>Taste 2</label>
-						{Object.entries(COLORS).map(([name, color]) => (
-							<button
-								key={name}
-								style={{ backgroundColor: color }}
-								onClick={() => {
-									// @ts-expect-error -- it's possible but motion says no
-									color2.set(color);
-								}}
-							>
-								{name}
-							</button>
-						))}
-					</div>
-					<div>
-						<label>Taste 3</label>
-						{Object.entries(COLORS).map(([name, color]) => (
-							<button
-								key={name}
-								style={{ backgroundColor: color }}
-								onClick={() => {
-									// @ts-expect-error -- it's possible but motion says no
-									color3.set(color);
-								}}
-							>
-								{name}
-							</button>
-						))}
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<label>Opacity 1</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={alpha1.get()}
-							onChange={(e) => alpha1.set(parseFloat(e.target.value))}
-						/>
-					</div>
-					<div>
-						<label>Opacity 2</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={alpha2.get()}
-							onChange={(e) => alpha2.set(parseFloat(e.target.value))}
-						/>
-					</div>
-					<div>
-						<label>Opacity 3</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={alpha3.get()}
-							onChange={(e) => alpha3.set(parseFloat(e.target.value))}
-						/>
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<label>Noise Scale</label>
-						<input
-							type='range'
-							min='0'
-							max='2'
-							step='0.1'
-							defaultValue={noiseScale.get()}
-							onChange={(e) =>
-								noiseScale.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-					<div>
-						<label>Noise Speed</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={noiseSpeed.get()}
-							onChange={(e) =>
-								noiseSpeed.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-					<div>
-						<label>Noise Intensity</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={noiseIntensity.get()}
-							onChange={(e) =>
-								noiseIntensity.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<label>Noise Weight X</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={noiseWeightX.get()}
-							onChange={(e) =>
-								noiseWeightX.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-					<div>
-						<label>Noise Weight Y</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={noiseWeightY.get()}
-							onChange={(e) =>
-								noiseWeightY.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-					<div>
-						<label>Noise Weight Z</label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.1'
-							defaultValue={noiseWeightZ.get()}
-							onChange={(e) =>
-								noiseWeightZ.set(parseFloat(e.target.value))
-							}
-						/>
-					</div>
-				</div>
-
-				<div>
-					<div>
-						<label>Blur</label>
-						<input
-							type='range'
-							min='0'
-							max='50'
-							step='1'
-							defaultValue={blur.get()}
-							onChange={(e) => blur.set(parseFloat(e.target.value))}
-						/>
-					</div>
-				</div>
-			</div>
+			<Controls
+				// @ts-expect-error -- motion better than it's types
+				color1={color1}
+				// @ts-expect-error -- motion better than it's types
+				color2={color2}
+				// @ts-expect-error -- motion better than it's types
+				color3={color3}
+				alpha1={alpha1}
+				alpha2={alpha2}
+				alpha3={alpha3}
+				noiseScale={noiseScale}
+				noiseSpeed={noiseSpeed}
+				noiseIntensity={noiseIntensity}
+				noiseWeightX={noiseWeightX}
+				noiseWeightY={noiseWeightY}
+				noiseWeightZ={noiseWeightZ}
+				blur={blur}
+			/>
 		</div>
 	);
 };
