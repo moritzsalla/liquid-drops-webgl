@@ -2,13 +2,13 @@ import { useEffect, useRef } from "react";
 import {
 	motion,
 	useMotionTemplate,
-	useMotionValue,
 	useMotionValueEvent,
 	useSpring,
 	type SpringOptions,
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
+import { COLORS } from "./colors";
 
 const SPRING_CONFIG: SpringOptions = {
 	bounce: 0,
@@ -29,10 +29,13 @@ export const Canvas = () => {
 	const noiseWeightY = useSpring(0.3, SPRING_CONFIG);
 	const noiseWeightZ = useSpring(0.2, SPRING_CONFIG);
 	const blur = useSpring(4, SPRING_CONFIG);
-	const color1 = useMotionValue("#89537A");
-	const color2 = useMotionValue("#9A4343");
-	const color3 = useMotionValue("#F4AE47");
-	const alpha1 = useSpring(0, SPRING_CONFIG);
+	// @ts-expect-error -- it's possible but motion says no
+	const color1 = useSpring(COLORS.fruity, SPRING_CONFIG);
+	// @ts-expect-error -- it's possible but motion says no
+	const color2 = useSpring(COLORS.grassy, SPRING_CONFIG);
+	// @ts-expect-error -- it's possible but motion says no
+	const color3 = useSpring(COLORS.nutty, SPRING_CONFIG);
+	const alpha1 = useSpring(1, SPRING_CONFIG);
 	const alpha2 = useSpring(1, SPRING_CONFIG);
 	const alpha3 = useSpring(1, SPRING_CONFIG);
 
@@ -76,7 +79,6 @@ export const Canvas = () => {
 		);
 
 		webFragRef.current.init();
-
 		return () => {
 			window.removeEventListener("resize", resizeCanvas);
 			webFragRef.current?.destroy();
@@ -87,60 +89,49 @@ export const Canvas = () => {
 	useMotionValueEvent(noiseScale, "change", (latest) => {
 		webFragRef.current?.setUniform("u_noiseScale", latest);
 	});
-
 	useMotionValueEvent(noiseSpeed, "change", (latest) => {
 		webFragRef.current?.setUniform("u_noiseSpeed", latest);
 	});
-
 	useMotionValueEvent(noiseIntensity, "change", (latest) => {
 		webFragRef.current?.setUniform("u_noiseIntensity", latest);
 	});
 
 	const updateNoiseWeights = () => {
-		const weights = [
+		webFragRef.current?.setUniform("u_noiseWeights", [
 			noiseWeightX.get(),
 			noiseWeightY.get(),
 			noiseWeightZ.get(),
-		];
-
-		webFragRef.current?.setUniform("u_noiseWeights", weights);
+		]);
 	};
 
 	useMotionValueEvent(noiseWeightX, "change", updateNoiseWeights);
 	useMotionValueEvent(noiseWeightY, "change", updateNoiseWeights);
 	useMotionValueEvent(noiseWeightZ, "change", updateNoiseWeights);
 
-	const handleColorChange = (
-		colorMotionValue: any,
-		alphaMotionValue: any,
-		index: number,
-	) => {
-		const color = colorMotionValue.get();
-		const alpha = alphaMotionValue.get();
-
+	const handleColorChange = (color: any, alpha: any, index: number) => {
 		webFragRef.current?.setUniform(
 			`u_color_${index}`,
 			colorToVec4(color, alpha),
 		);
 	};
 
-	useMotionValueEvent(color1, "change", () =>
-		handleColorChange(color1, alpha1, 0),
+	useMotionValueEvent(color1, "change", (val) =>
+		handleColorChange(val, alpha1.get(), 0),
 	);
-	useMotionValueEvent(color2, "change", () =>
-		handleColorChange(color2, alpha2, 1),
+	useMotionValueEvent(color2, "change", (val) =>
+		handleColorChange(val, alpha2.get(), 1),
 	);
-	useMotionValueEvent(color3, "change", () =>
-		handleColorChange(color3, alpha2, 2),
+	useMotionValueEvent(color3, "change", (val) =>
+		handleColorChange(val, alpha2.get(), 2),
 	);
-	useMotionValueEvent(alpha1, "change", () =>
-		handleColorChange(color1, alpha1, 0),
+	useMotionValueEvent(alpha1, "change", (val) =>
+		handleColorChange(color1.get(), val, 0),
 	);
-	useMotionValueEvent(alpha2, "change", () =>
-		handleColorChange(color2, alpha2, 1),
+	useMotionValueEvent(alpha2, "change", (val) =>
+		handleColorChange(color2.get(), val, 1),
 	);
-	useMotionValueEvent(alpha3, "change", () =>
-		handleColorChange(color3, alpha3, 2),
+	useMotionValueEvent(alpha3, "change", (val) =>
+		handleColorChange(color3.get(), val, 2),
 	);
 
 	return (
@@ -155,40 +146,55 @@ export const Canvas = () => {
 			<div className='controls'>
 				<div>
 					<div>
-						<label>Color 1</label>
-						<input
-							type='color'
-							defaultValue={color1.get()}
-							onChange={(e) => {
-								color1.set(e.target.value);
-							}}
-						/>
+						<label>Taste 1</label>
+						{Object.entries(COLORS).map(([name, color]) => (
+							<button
+								key={name}
+								style={{ backgroundColor: color }}
+								onClick={() => {
+									// @ts-expect-error -- it's possible but motion says no
+									color1.set(color);
+								}}
+							>
+								{name}
+							</button>
+						))}
 					</div>
 					<div>
-						<label>Color 2</label>
-						<input
-							type='color'
-							defaultValue={color2.get()}
-							onChange={(e) => {
-								color2.set(e.target.value);
-							}}
-						/>
+						<label>Taste 2</label>
+						{Object.entries(COLORS).map(([name, color]) => (
+							<button
+								key={name}
+								style={{ backgroundColor: color }}
+								onClick={() => {
+									// @ts-expect-error -- it's possible but motion says no
+									color2.set(color);
+								}}
+							>
+								{name}
+							</button>
+						))}
 					</div>
 					<div>
-						<label>Color 3</label>
-						<input
-							type='color'
-							defaultValue={color3.get()}
-							onChange={(e) => {
-								color3.set(e.target.value);
-							}}
-						/>
+						<label>Taste 3</label>
+						{Object.entries(COLORS).map(([name, color]) => (
+							<button
+								key={name}
+								style={{ backgroundColor: color }}
+								onClick={() => {
+									// @ts-expect-error -- it's possible but motion says no
+									color3.set(color);
+								}}
+							>
+								{name}
+							</button>
+						))}
 					</div>
 				</div>
 
 				<div>
 					<div>
-						<label>Alpha 1</label>
+						<label>Opacity 1</label>
 						<input
 							type='range'
 							min='0'
@@ -199,7 +205,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label>Alpha 2</label>
+						<label>Opacity 2</label>
 						<input
 							type='range'
 							min='0'
@@ -210,7 +216,7 @@ export const Canvas = () => {
 						/>
 					</div>
 					<div>
-						<label>Alpha 3</label>
+						<label>Opacity 3</label>
 						<input
 							type='range'
 							min='0'
