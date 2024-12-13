@@ -5,6 +5,7 @@ import { Navigation } from "./components/Navigation";
 import { LiquidCanvas } from "./components/LiquidCanvas";
 import { Vignette } from "./components/Vignette";
 import { ConeCanvas } from "./components/ConeCanvas";
+import { ShadowCanvas } from "./components/ShadowCanvas";
 
 export const App = () => {
 	return (
@@ -16,6 +17,7 @@ export const App = () => {
 					<Route path='/liquid' element={<LiquidCanvas />} />
 					<Route path='/vignette' element={<Vignette />} />
 					<Route path='/cone' element={<ConeCanvas />} />
+					<Route path='/shadow' element={<ShadowCanvas />} />
 				</Routes>
 			</div>
 		</BrowserRouter>

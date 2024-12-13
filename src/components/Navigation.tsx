@@ -24,6 +24,11 @@ export const Navigation = () => {
 						Cone
 					</Link>
 				</li>
+				<li>
+					<Link to='/shadow' className='hover:text-gray-300'>
+						Shadow
+					</Link>
+				</li>
 			</ul>
 		</nav>
 	);

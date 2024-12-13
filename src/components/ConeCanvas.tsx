@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSpring } from "framer-motion";
 import { WebFrag } from "../lib/WebFrag";
 import { CONE_FRAGMENT_SHADER } from "../lib/coneShader";
