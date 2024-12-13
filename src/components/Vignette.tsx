@@ -15,6 +15,7 @@ export const Vignette = () => {
 	// @ts-expect-error -- motion better than it's types
 	const color2 = useSpring(COLORS.woody, SPRING_CONFIG);
 	const opacity = useSpring(0.5, SPRING_CONFIG);
+	const coneIntensity = useSpring(0.4, SPRING_CONFIG); // New control for cone shape
 
 	// Mouse tracking
 	const mouseX = useMotionValue(0);
@@ -42,12 +43,13 @@ export const Vignette = () => {
 	const gradientX = useTransform(smoothX, [-1, 1], ["0%", "100%"]);
 	const gradientY = useTransform(smoothY, [-1, 1], ["0%", "100%"]);
 
-	// Dynamic intensity based on mouse movement
+	// Dynamic intensity based on mouse movement and cone intensity
 	const intensity = useTransform<number, number>(
-		[smoothX, smoothY],
-		([x, y]) => {
+		[smoothX, smoothY, coneIntensity],
+		([x, y, cone]) => {
 			const distance = Math.sqrt(x * x + y * y);
-			return 0.3 + distance * 0.2;
+			// More dramatic effect: base + (distance * exponential cone factor)
+			return 0.2 + distance * (0.2 + cone * 2.5); // Increased cone multiplier for more intensity
 		},
 	);
 
@@ -155,6 +157,22 @@ export const Vignette = () => {
 						step='0.1'
 						defaultValue={opacity.get()}
 						onChange={(e) => opacity.set(parseFloat(e.target.value))}
+						className='w-32'
+					/>
+				</div>
+
+				{/* New Cone Intensity Control */}
+				<div className='flex flex-col gap-2'>
+					<div className='text-sm text-white opacity-50'>Cone Shape</div>
+					<input
+						type='range'
+						min='0'
+						max='1'
+						step='0.1'
+						defaultValue={coneIntensity.get()}
+						onChange={(e) =>
+							coneIntensity.set(parseFloat(e.target.value))
+						}
 						className='w-32'
 					/>
 				</div>
