@@ -1,5 +1,5 @@
 import type { MotionValue } from "framer-motion";
-import { COLORS } from "./config";
+import { COLORS } from "../config";
 import { memo } from "react";
 
 type ColorControlProps = {

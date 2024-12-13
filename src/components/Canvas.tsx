@@ -6,12 +6,12 @@ import {
 	useSpring,
 	useWillChange,
 } from "framer-motion";
-import { colorToVec4, WebFrag } from "./lib/WebFrag";
-import { FRAGMENT_SHADER } from "./lib/shaders";
-import { COLORS, SPRING_CONFIG } from "./config";
-import { useDropShadow } from "./useDropShadow";
+import { colorToVec4, WebFrag } from "../lib/WebFrag";
+import { FRAGMENT_SHADER } from "../lib/shaders";
+import { COLORS, SPRING_CONFIG } from "../config";
+import { useDropShadow } from "../hooks/useDropShadow";
+import { useReflectionRotation } from "../hooks/useReflectionsRotation";
 import { Controls } from "./Control";
-import { useReflectionRotation } from "./useReflectionsRotation";
 
 // TODO optimize blur by using shader pass instead of CSS filter
 export const Canvas = () => {
