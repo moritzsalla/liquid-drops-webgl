@@ -1,23 +1,30 @@
 import {
 	MotionValue,
 	useMotionTemplate,
-	useMotionValue,
+	useSpring,
 	useTransform,
+	type SpringOptions,
 } from "framer-motion";
 import { useEffect } from "react";
 
+const SPRING_CONFIG: SpringOptions = {
+	bounce: 0,
+	mass: 0.1,
+	damping: 10,
+};
+
 // Light source configuration
 const SHADOW_OFFSET_MULTIPLIER = 30;
-const SHADOW_BLUR_MULTIPLIER = 30;
+const SHADOW_BLUR_MULTIPLIER = 20;
 const SHADOW_BLUR_BASE = 2;
 const SHADOW_OPACITY_MULTIPLIER = 0.5;
-const SHADOW_OPACITY_BASE = 0.5;
-const SHADOW_OPACITY_MAX = 0.8;
+const SHADOW_OPACITY_BASE = 0.7;
+const SHADOW_OPACITY_MAX = 1;
 
 // Normalized: 0 - 1
 const useMousePosition = () => {
-	const mouseX = useMotionValue(0);
-	const mouseY = useMotionValue(0);
+	const mouseX = useSpring(0, SPRING_CONFIG);
+	const mouseY = useSpring(0, SPRING_CONFIG);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {

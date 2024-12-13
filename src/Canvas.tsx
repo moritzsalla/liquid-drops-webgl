@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	motion,
 	useMotionTemplate,
@@ -24,10 +24,14 @@ export const Canvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const webFragRef = useRef<WebFrag | null>(null);
 
+	const [showReflections, setShowReflections] = useState(true);
+	const [showShadows, setShowShadows] = useState(true);
+	const [showMask, setShowMask] = useState(true);
+
 	// Motion values
 	const noiseScale = useSpring(0.5, SPRING_CONFIG);
 	const noiseSpeed = useSpring(0.5, SPRING_CONFIG);
-	const noiseIntensity = useSpring(0.7, SPRING_CONFIG);
+	const noiseIntensity = useSpring(0.9, SPRING_CONFIG);
 	const noiseWeightX = useSpring(0.5, SPRING_CONFIG);
 	const noiseWeightY = useSpring(0.3, SPRING_CONFIG);
 	const noiseWeightZ = useSpring(0.2, SPRING_CONFIG);
@@ -142,22 +146,29 @@ export const Canvas = () => {
 
 	const willChange = useWillChange();
 	const dropShadow = useDropShadow();
+	const blurFilter = useMotionTemplate`blur(${blur}px)`;
 
 	return (
 		<div className='wrapper'>
 			<motion.div
-				className='canvasContainerOuter'
-				style={{ filter: dropShadow, willChange }}
+				className='canvasContainer'
+				style={{
+					filter: showShadows ? dropShadow : "none",
+					willChange,
+				}}
 			>
-				<div className='canvasContainer'>
+				<div className='canvasMask' data-hide-mask={!showMask}>
 					<motion.canvas
 						ref={ref}
 						className='canvas'
 						style={{
 							willChange,
-							filter: useMotionTemplate`blur(${blur}px)`,
+							// Possible performance optimization: apply blur in shader.
+							filter: showMask ? blurFilter : "none",
 						}}
 					/>
+					{showMask && showReflections && <div className='reflections' />}
+					{showMask && showShadows && <div className='shadows' />}
 				</div>
 			</motion.div>
 
@@ -178,6 +189,12 @@ export const Canvas = () => {
 				noiseWeightY={noiseWeightY}
 				noiseWeightZ={noiseWeightZ}
 				blur={blur}
+				showReflections={showReflections}
+				setShowReflections={setShowReflections}
+				showShadows={showShadows}
+				setShowShadows={setShowShadows}
+				showMask={showMask}
+				setShowMask={setShowMask}
 			/>
 		</div>
 	);

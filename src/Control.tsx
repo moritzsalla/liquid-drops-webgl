@@ -71,7 +71,7 @@ export const NoiseControl = ({
 );
 
 // Controls.tsx
-interface ControlsProps {
+type ControlsProps = {
 	color1: MotionValue<string>;
 	color2: MotionValue<string>;
 	color3: MotionValue<string>;
@@ -85,7 +85,13 @@ interface ControlsProps {
 	noiseWeightY: MotionValue<number>;
 	noiseWeightZ: MotionValue<number>;
 	blur: MotionValue<number>;
-}
+	showReflections: boolean;
+	setShowReflections: (show: boolean) => void;
+	showShadows: boolean;
+	setShowShadows: (show: boolean) => void;
+	showMask: boolean;
+	setShowMask: (show: boolean) => void;
+};
 
 export const Controls = ({
 	color1,
@@ -101,9 +107,27 @@ export const Controls = ({
 	noiseWeightY,
 	noiseWeightZ,
 	blur,
+	showShadows,
+	setShowShadows,
+	showReflections,
+	setShowReflections,
+	showMask,
+	setShowMask,
 }: ControlsProps) => {
 	return (
 		<div className='controls'>
+			<div>
+				<button onClick={() => setShowShadows(!showShadows)}>
+					{showShadows ? "Hide" : "Show"} Shadows
+				</button>
+				<button onClick={() => setShowReflections(!showReflections)}>
+					{showReflections ? "Hide" : "Show"} Reflections
+				</button>
+				<button onClick={() => setShowMask(!showMask)}>
+					{showMask ? "Hide" : "Show"} Mask
+				</button>
+			</div>
+
 			<div>
 				<ColorControl label='Taste 1' color={color1} />
 				<ColorControl label='Taste 2' color={color2} />
