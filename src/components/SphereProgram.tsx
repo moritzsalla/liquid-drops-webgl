@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
 	motion,
 	useMotionTemplate,
@@ -7,14 +7,14 @@ import {
 	useWillChange,
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "../lib/WebFrag";
-import { FRAGMENT_SHADER } from "../lib/shaders";
+import { SPHERE_FRAGMENT_SHADER } from "../lib/sphereShader";
 import { COLORS, SPRING_CONFIG } from "../config";
 import { useDropShadow } from "../hooks/useDropShadow";
 import { useReflectionRotation } from "../hooks/useReflectionsRotation";
 import { Controls } from "./Control";
 
 // TODO optimize blur by using shader pass instead of CSS filter
-export const Canvas = () => {
+export const SphereProgram = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const webFragRef = useRef<WebFrag | null>(null);
 
@@ -41,7 +41,7 @@ export const Canvas = () => {
 	const alpha3 = useSpring(1, SPRING_CONFIG);
 
 	// Setup canvas and WebFrag instance
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const canvas = ref.current;
 		if (!canvas) return;
 
@@ -55,7 +55,7 @@ export const Canvas = () => {
 		window.addEventListener("resize", resizeCanvas);
 
 		webFragRef.current = new WebFrag(canvas);
-		webFragRef.current.setShader(FRAGMENT_SHADER);
+		webFragRef.current.setShader(SPHERE_FRAGMENT_SHADER);
 
 		// Initial uniform setup
 		webFragRef.current.setUniform("u_noiseScale", noiseScale.get());

@@ -1,4 +1,4 @@
-export const FRAGMENT_SHADER = `#ifdef GL_ES
+export const SPHERE_FRAGMENT_SHADER = `#ifdef GL_ES
 precision mediump float;
 #endif
 
