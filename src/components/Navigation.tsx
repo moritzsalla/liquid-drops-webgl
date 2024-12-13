@@ -19,6 +19,11 @@ export const Navigation = () => {
 						Shadow
 					</Link>
 				</li>
+				<li>
+					<Link to='/vignette' className='hover:text-gray-300'>
+						Vignette
+					</Link>
+				</li>
 			</ul>
 		</nav>
 	);
