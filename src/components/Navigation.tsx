@@ -10,8 +10,13 @@ export const Navigation = () => {
 					</Link>
 				</li>
 				<li>
-					<Link to='/2' className='hover:text-gray-300'>
-						Background
+					<Link to='/liquid' className='hover:text-gray-300'>
+						Liquid
+					</Link>
+				</li>
+				<li>
+					<Link to='/shadow' className='hover:text-gray-300'>
+						Shadow
 					</Link>
 				</li>
 			</ul>

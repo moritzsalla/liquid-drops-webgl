@@ -1,11 +1,10 @@
-import { useSpring } from "framer-motion";
+import { useMotionValue } from "framer-motion";
 import { useEffect } from "react";
-import { SPRING_CONFIG } from "../config";
 
 // Normalized: 0 - 1
 export const useMousePosition = () => {
-	const mouseX = useSpring(0, SPRING_CONFIG);
-	const mouseY = useSpring(0, SPRING_CONFIG);
+	const mouseX = useMotionValue(0);
+	const mouseY = useMotionValue(0);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {

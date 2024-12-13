@@ -76,22 +76,22 @@ type ControlsProps = {
 	color1: MotionValue<string>;
 	color2: MotionValue<string>;
 	color3: MotionValue<string>;
-	alpha1: MotionValue<number>;
-	alpha2: MotionValue<number>;
-	alpha3: MotionValue<number>;
+	alpha1?: MotionValue<number>;
+	alpha2?: MotionValue<number>;
+	alpha3?: MotionValue<number>;
 	noiseScale: MotionValue<number>;
-	noiseSpeed: MotionValue<number>;
 	noiseIntensity: MotionValue<number>;
 	noiseWeightX: MotionValue<number>;
 	noiseWeightY: MotionValue<number>;
 	noiseWeightZ: MotionValue<number>;
-	blur: MotionValue<number>;
-	showReflections: boolean;
-	setShowReflections: (show: boolean) => void;
-	showShadows: boolean;
-	setShowShadows: (show: boolean) => void;
-	showMask: boolean;
-	setShowMask: (show: boolean) => void;
+	showReflections?: boolean;
+	blendSoftness: MotionValue<number>;
+	flowSpeed: MotionValue<number>;
+	setShowReflections?: (show: boolean) => void;
+	showShadows?: boolean;
+	setShowShadows?: (show: boolean) => void;
+	showMask?: boolean;
+	setShowMask?: (show: boolean) => void;
 };
 
 export const Controls = memo(
@@ -103,13 +103,13 @@ export const Controls = memo(
 		alpha2,
 		alpha3,
 		noiseScale,
-		noiseSpeed,
 		noiseIntensity,
 		noiseWeightX,
 		noiseWeightY,
 		noiseWeightZ,
-		blur,
 		showShadows,
+		blendSoftness,
+		flowSpeed,
 		setShowShadows,
 		showReflections,
 		setShowReflections,
@@ -119,15 +119,21 @@ export const Controls = memo(
 		return (
 			<div className='controls'>
 				<div>
-					<button onClick={() => setShowShadows(!showShadows)}>
-						{showShadows ? "Hide" : "Show"} Shadows
-					</button>
-					<button onClick={() => setShowReflections(!showReflections)}>
-						{showReflections ? "Hide" : "Show"} Reflections
-					</button>
-					<button onClick={() => setShowMask(!showMask)}>
-						{showMask ? "Hide" : "Show"} Mask
-					</button>
+					{setShowShadows && (
+						<button onClick={() => setShowShadows(!showShadows)}>
+							{showShadows ? "Hide" : "Show"} Shadows
+						</button>
+					)}
+					{setShowReflections && (
+						<button onClick={() => setShowReflections(!showReflections)}>
+							{showReflections ? "Hide" : "Show"} Reflections
+						</button>
+					)}
+					{setShowMask && (
+						<button onClick={() => setShowMask(!showMask)}>
+							{showMask ? "Hide" : "Show"} Mask
+						</button>
+					)}
 				</div>
 
 				<div>
@@ -137,9 +143,9 @@ export const Controls = memo(
 				</div>
 
 				<div>
-					<OpacityControl label='Opacity 1' value={alpha1} />
-					<OpacityControl label='Opacity 2' value={alpha2} />
-					<OpacityControl label='Opacity 3' value={alpha3} />
+					{!!alpha1 && <OpacityControl label='Opacity 1' value={alpha1} />}
+					{!!alpha2 && <OpacityControl label='Opacity 2' value={alpha2} />}
+					{!!alpha3 && <OpacityControl label='Opacity 3' value={alpha3} />}
 				</div>
 
 				<div>
@@ -149,7 +155,6 @@ export const Controls = memo(
 						min={0}
 						max={2}
 					/>
-					<NoiseControl label='Noise Speed' value={noiseSpeed} />
 					<NoiseControl label='Noise Intensity' value={noiseIntensity} />
 				</div>
 
@@ -159,10 +164,21 @@ export const Controls = memo(
 					<NoiseControl label='Noise Weight Z' value={noiseWeightZ} />
 				</div>
 
-				<div>
-					<NoiseControl label='Blur' value={blur} min={0} max={50} />
-				</div>
+				<NoiseControl
+					label='Blend Softness'
+					value={blendSoftness}
+					min={0}
+					max={1}
+				/>
+				<NoiseControl
+					label='Flow Speed'
+					value={flowSpeed}
+					min={0}
+					max={2}
+				/>
 			</div>
 		);
 	},
 );
+
+ 

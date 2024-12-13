@@ -11,6 +11,7 @@ const SHADOW_OPACITY_MAX = 1;
 
 export const useDropShadow = (): MotionValue<string> => {
 	const { mouseX, mouseY } = useMousePosition();
+
 	const shadowX = useTransform(mouseX, (x) => -x * SHADOW_OFFSET_MULTIPLIER);
 	const shadowY = useTransform(mouseY, (y) => -y * SHADOW_OFFSET_MULTIPLIER);
 

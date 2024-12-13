@@ -1,20 +1,31 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
 	motion,
-	useMotionTemplate,
 	useMotionValueEvent,
 	useSpring,
 	useWillChange,
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "../lib/WebFrag";
-import { SPHERE_FRAGMENT_SHADER } from "../lib/sphereShader";
+import { LIQUID_FRAGMENT_SHADER } from "../lib/liquidShader";
 import { COLORS, SPRING_CONFIG } from "../config";
 import { useDropShadow } from "../hooks/useDropShadow";
 import { useReflectionRotation } from "../hooks/useReflectionsRotation";
 import { Controls } from "./Control";
 
-// TODO optimize blur by using shader pass instead of CSS filter
-export const SphereProgram = () => {
+const DEFAULT_VALUES = {
+	noiseScale: 1.2, // Increased for more variation
+	noiseIntensity: 0.7, // Increased for stronger effect
+	noiseWeightX: 0.5,
+	noiseWeightY: 0.3,
+	noiseWeightZ: 0.2,
+	blendSoftness: 0.4,
+	flowSpeed: 0.5, // Adjusted for smoother movement
+	color1: COLORS.floral,
+	color2: COLORS.winey,
+	color3: COLORS.spicy,
+};
+
+export const SphereCanvas = () => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const webFragRef = useRef<WebFrag | null>(null);
 
@@ -23,19 +34,23 @@ export const SphereProgram = () => {
 	const [showMask, setShowMask] = useState(true);
 
 	// Motion values
-	const noiseScale = useSpring(0.5, SPRING_CONFIG);
-	const noiseSpeed = useSpring(0.5, SPRING_CONFIG);
-	const noiseIntensity = useSpring(0.9, SPRING_CONFIG);
-	const noiseWeightX = useSpring(0.5, SPRING_CONFIG);
-	const noiseWeightY = useSpring(0.3, SPRING_CONFIG);
-	const noiseWeightZ = useSpring(0.2, SPRING_CONFIG);
-	const blur = useSpring(14, SPRING_CONFIG);
+	const noiseScale = useSpring(DEFAULT_VALUES.noiseScale, SPRING_CONFIG);
+	const noiseIntensity = useSpring(
+		DEFAULT_VALUES.noiseIntensity,
+		SPRING_CONFIG,
+	);
+	const noiseWeightX = useSpring(DEFAULT_VALUES.noiseWeightX, SPRING_CONFIG);
+	const noiseWeightY = useSpring(DEFAULT_VALUES.noiseWeightY, SPRING_CONFIG);
+	const noiseWeightZ = useSpring(DEFAULT_VALUES.noiseWeightZ, SPRING_CONFIG);
+	const blendSoftness = useSpring(DEFAULT_VALUES.blendSoftness, SPRING_CONFIG);
+	const flowSpeed = useSpring(DEFAULT_VALUES.flowSpeed, SPRING_CONFIG);
+	const maskSoftness = useSpring(0.5, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color1 = useSpring(COLORS.floral, SPRING_CONFIG);
+	const color1 = useSpring(DEFAULT_VALUES.color1, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color2 = useSpring(COLORS.spicy, SPRING_CONFIG);
+	const color2 = useSpring(DEFAULT_VALUES.color2, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color3 = useSpring(COLORS.spicy, SPRING_CONFIG);
+	const color3 = useSpring(DEFAULT_VALUES.color3, SPRING_CONFIG);
 	const alpha1 = useSpring(1, SPRING_CONFIG);
 	const alpha2 = useSpring(1, SPRING_CONFIG);
 	const alpha3 = useSpring(1, SPRING_CONFIG);
@@ -55,11 +70,12 @@ export const SphereProgram = () => {
 		window.addEventListener("resize", resizeCanvas);
 
 		webFragRef.current = new WebFrag(canvas);
-		webFragRef.current.setShader(SPHERE_FRAGMENT_SHADER);
+		webFragRef.current.setShader(LIQUID_FRAGMENT_SHADER);
 
 		// Initial uniform setup
+		webFragRef.current.setUniform("u_blendSoftness", blendSoftness.get());
+		webFragRef.current.setUniform("u_flowSpeed", flowSpeed.get());
 		webFragRef.current.setUniform("u_noiseScale", noiseScale.get());
-		webFragRef.current.setUniform("u_noiseSpeed", noiseSpeed.get());
 		webFragRef.current.setUniform("u_noiseIntensity", noiseIntensity.get());
 		webFragRef.current.setUniform("u_noiseWeights", [
 			noiseWeightX.get(),
@@ -93,11 +109,14 @@ export const SphereProgram = () => {
 	useMotionValueEvent(noiseScale, "change", (latest) => {
 		webFragRef.current?.setUniform("u_noiseScale", latest);
 	});
-	useMotionValueEvent(noiseSpeed, "change", (latest) => {
-		webFragRef.current?.setUniform("u_noiseSpeed", latest);
-	});
 	useMotionValueEvent(noiseIntensity, "change", (latest) => {
 		webFragRef.current?.setUniform("u_noiseIntensity", latest);
+	});
+	useMotionValueEvent(flowSpeed, "change", (latest) => {
+		webFragRef.current?.setUniform("u_flowSpeed", latest);
+	});
+	useMotionValueEvent(blendSoftness, "change", (latest) => {
+		webFragRef.current?.setUniform("u_blendSoftness", latest);
 	});
 
 	const updateNoiseWeights = useCallback(() => {
@@ -140,28 +159,19 @@ export const SphereProgram = () => {
 
 	const willChange = useWillChange();
 	const dropShadow = useDropShadow();
-	const blurFilter = useMotionTemplate`blur(${blur}px)`;
 	const reflectionRotation = useReflectionRotation();
 
 	return (
 		<div className='wrapper'>
 			<motion.div
-				className='canvasContainer'
+				className='canvasContainer bounceIn'
 				style={{
 					filter: showShadows ? dropShadow : "none",
 					willChange,
 				}}
 			>
 				<div className='canvasMask' data-hide-mask={!showMask}>
-					<motion.canvas
-						ref={ref}
-						className='canvas'
-						style={{
-							willChange,
-							// Possible performance optimization: apply blur in shader.
-							filter: showMask ? blurFilter : "none",
-						}}
-					/>
+					<motion.canvas ref={ref} className='canvas' />
 					{showMask && showReflections && (
 						<motion.div
 							className='reflections'
@@ -187,18 +197,18 @@ export const SphereProgram = () => {
 				alpha2={alpha2}
 				alpha3={alpha3}
 				noiseScale={noiseScale}
-				noiseSpeed={noiseSpeed}
 				noiseIntensity={noiseIntensity}
 				noiseWeightX={noiseWeightX}
 				noiseWeightY={noiseWeightY}
 				noiseWeightZ={noiseWeightZ}
-				blur={blur}
 				showReflections={showReflections}
+				blendSoftness={blendSoftness}
 				setShowReflections={setShowReflections}
 				showShadows={showShadows}
 				setShowShadows={setShowShadows}
 				showMask={showMask}
 				setShowMask={setShowMask}
+				flowSpeed={flowSpeed}
 			/>
 		</div>
 	);
