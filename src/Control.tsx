@@ -1,5 +1,5 @@
 import type { MotionValue } from "framer-motion";
-import { COLORS } from "./colors";
+import { COLORS } from "./config";
 
 type ColorControlProps = {
 	label: string;

@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
-import { COLORS } from "./colors";
+import { COLORS } from "./config";
 import { useDropShadow } from "./useDropShadow";
 import { Controls } from "./Control";
 
