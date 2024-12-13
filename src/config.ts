@@ -1,3 +1,5 @@
+import type { SpringOptions } from "framer-motion";
+
 export const COLORS = {
 	fruity: "#F4AE47",
 	floral: "#C8A6C0",
@@ -12,3 +14,9 @@ export const COLORS = {
 } as const;
 
 export type Color = (typeof COLORS)[keyof typeof COLORS];
+
+export const SPRING_CONFIG: SpringOptions = {
+	bounce: 0,
+	mass: 0.1,
+	damping: 10,
+};

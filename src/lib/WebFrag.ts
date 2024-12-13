@@ -1,11 +1,15 @@
+type UniformValue = number | number[];
+type UniformMap = Map<string, WebGLUniformLocation | null>;
+
+// Improvement: only calc u_dimensions on resize.
 export class WebFrag {
 	private gl: WebGLRenderingContext;
 	private program: WebGLProgram | null = null;
-	private uniforms = new Map<string, WebGLUniformLocation | null>();
+	private uniforms: UniformMap = new Map();
 	private vertexShader: WebGLShader;
 	private frameId: number | null = null;
 	private isDestroyed = false;
-	private defaultUniforms: Record<string, number | number[]> = {};
+	private defaultUniforms: Record<string, UniformValue> = {};
 
 	constructor(
 		private canvas: HTMLCanvasElement,

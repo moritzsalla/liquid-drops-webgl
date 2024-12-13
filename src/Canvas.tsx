@@ -1,23 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	motion,
 	useMotionTemplate,
 	useMotionValueEvent,
 	useSpring,
 	useWillChange,
-	type SpringOptions,
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
-import { COLORS } from "./config";
+import { COLORS, SPRING_CONFIG } from "./config";
 import { useDropShadow } from "./useDropShadow";
 import { Controls } from "./Control";
-
-const SPRING_CONFIG: SpringOptions = {
-	bounce: 0,
-	mass: 2,
-	damping: 30,
-};
+import { useReflectionRotation } from "./useReflectionsRotation";
 
 // TODO optimize blur by using shader pass instead of CSS filter
 export const Canvas = () => {
@@ -106,13 +100,13 @@ export const Canvas = () => {
 		webFragRef.current?.setUniform("u_noiseIntensity", latest);
 	});
 
-	const updateNoiseWeights = () => {
+	const updateNoiseWeights = useCallback(() => {
 		webFragRef.current?.setUniform("u_noiseWeights", [
 			noiseWeightX.get(),
 			noiseWeightY.get(),
 			noiseWeightZ.get(),
 		]);
-	};
+	}, [noiseWeightX, noiseWeightY, noiseWeightZ]);
 
 	useMotionValueEvent(noiseWeightX, "change", updateNoiseWeights);
 	useMotionValueEvent(noiseWeightY, "change", updateNoiseWeights);
@@ -147,6 +141,7 @@ export const Canvas = () => {
 	const willChange = useWillChange();
 	const dropShadow = useDropShadow();
 	const blurFilter = useMotionTemplate`blur(${blur}px)`;
+	const reflectionRotation = useReflectionRotation();
 
 	return (
 		<div className='wrapper'>
@@ -167,8 +162,17 @@ export const Canvas = () => {
 							filter: showMask ? blurFilter : "none",
 						}}
 					/>
-					{showMask && showReflections && <div className='reflections' />}
-					{showMask && showShadows && <div className='shadows' />}
+					{showMask && showReflections && (
+						<motion.div
+							className='reflections'
+							style={{
+								rotate: reflectionRotation,
+							}}
+						/>
+					)}
+					{showMask && showShadows && (
+						<motion.div className='inner-shadows' />
+					)}
 				</div>
 			</motion.div>
 
