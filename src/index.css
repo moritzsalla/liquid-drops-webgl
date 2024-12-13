@@ -2,9 +2,7 @@ body,
 html {
 	margin: 0;
 	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-		"Helvetica Neue", sans-serif;
+	font-family: monospace;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: #966544;
@@ -48,8 +46,8 @@ code {
 
 .canvasContainer {
 	position: relative;
-	width: 30vw;
-	height: 30vw;
+	width: 30vmax;
+	aspect-ratio: 1;
 	mask-image: url("./mask.svg");
 	mask-size: contain;
 	mask-repeat: no-repeat;
@@ -62,6 +60,8 @@ code {
 		transform: scale(0.6);
 	}
 }
+
+
 
 .canvasContainerOuter {
 }
@@ -101,7 +101,6 @@ label {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
 	display: grid;
 	place-items: center;
 }
