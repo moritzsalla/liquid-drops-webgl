@@ -56,6 +56,9 @@ code {
 	margin: 15vh;
 }
 
+.canvasContainerOuter {
+}
+
 .controls {
 	position: fixed;
 	bottom: 0;

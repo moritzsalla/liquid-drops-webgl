@@ -4,11 +4,13 @@ import {
 	useMotionTemplate,
 	useMotionValueEvent,
 	useSpring,
+	useWillChange,
 	type SpringOptions,
 } from "framer-motion";
 import { colorToVec4, WebFrag } from "./lib/WebFrag";
 import { FRAGMENT_SHADER } from "./lib/shaders";
 import { COLORS } from "./colors";
+import { useDropShadow } from "./useDropShadow";
 
 const SPRING_CONFIG: SpringOptions = {
 	bounce: 0,
@@ -137,17 +139,26 @@ export const Canvas = () => {
 		handleColorChange(color3.get(), val, 2),
 	);
 
+	const willChange = useWillChange();
+	const dropShadow = useDropShadow();
+
 	return (
 		<div className='wrapper'>
-			<div className='canvasContainer'>
-				<motion.canvas
-					ref={ref}
-					className='canvas'
-					style={{
-						filter: useMotionTemplate`blur(${blur}px)`,
-					}}
-				/>
-			</div>
+			<motion.div
+				className='canvasContainerOuter'
+				style={{ filter: dropShadow, willChange }}
+			>
+				<div className='canvasContainer'>
+					<motion.canvas
+						ref={ref}
+						className='canvas'
+						style={{
+							willChange,
+							filter: useMotionTemplate`blur(${blur}px)`,
+						}}
+					/>
+				</div>
+			</motion.div>
 
 			<div className='controls'>
 				<div>
