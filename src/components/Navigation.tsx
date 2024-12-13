@@ -15,13 +15,13 @@ export const Navigation = () => {
 					</Link>
 				</li>
 				<li>
-					<Link to='/shadow' className='hover:text-gray-300'>
-						Shadow
+					<Link to='/vignette' className='hover:text-gray-300'>
+						Vignette
 					</Link>
 				</li>
 				<li>
-					<Link to='/vignette' className='hover:text-gray-300'>
-						Vignette
+					<Link to='/cone' className='hover:text-gray-300'>
+						Cone
 					</Link>
 				</li>
 			</ul>

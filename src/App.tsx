@@ -3,8 +3,8 @@ import "./App.css";
 import { SphereCanvas } from "./components/SphereCanvas";
 import { Navigation } from "./components/Navigation";
 import { LiquidCanvas } from "./components/LiquidCanvas";
-import { ShadowCanvas } from "./components/ShadowCanvas";
 import { Vignette } from "./components/Vignette";
+import { ConeCanvas } from "./components/ConeCanvas";
 
 export const App = () => {
 	return (
@@ -14,8 +14,8 @@ export const App = () => {
 				<Routes>
 					<Route path='/' element={<SphereCanvas />} />
 					<Route path='/liquid' element={<LiquidCanvas />} />
-					<Route path='/shadow' element={<ShadowCanvas />} />
 					<Route path='/vignette' element={<Vignette />} />
+					<Route path='/cone' element={<ConeCanvas />} />
 				</Routes>
 			</div>
 		</BrowserRouter>

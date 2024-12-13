@@ -1,12 +1,6 @@
 import React, { useEffect } from "react";
 import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
-import { COLORS } from "../config";
-
-const SPRING_CONFIG = {
-	bounce: 0,
-	mass: 1.2,
-	damping: 20,
-};
+import { COLORS, SPRING_CONFIG } from "../config";
 
 export const Vignette = () => {
 	// Motion values for colors and opacity
