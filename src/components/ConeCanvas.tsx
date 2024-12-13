@@ -91,7 +91,7 @@ export const ConeCanvas = () => {
 
 	return (
 		<div className='fixed inset-0 w-full h-full'>
-			<canvas ref={ref} className='w-full h-full cursor-none' />
+			<canvas ref={ref} className='w-full h-full cursor-none fadeIn' />
 
 			{/* Controls */}
 			<div className='fixed bottom-0 left-0 p-4 flex gap-4'>
