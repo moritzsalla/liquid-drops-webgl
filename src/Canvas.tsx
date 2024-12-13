@@ -22,19 +22,19 @@ export const Canvas = () => {
 	const webFragRef = useRef<WebFrag | null>(null);
 
 	// Motion values
-	const noiseScale = useSpring(1.0, SPRING_CONFIG);
-	const noiseSpeed = useSpring(0.2, SPRING_CONFIG);
+	const noiseScale = useSpring(0.5, SPRING_CONFIG);
+	const noiseSpeed = useSpring(0.5, SPRING_CONFIG);
 	const noiseIntensity = useSpring(0.7, SPRING_CONFIG);
 	const noiseWeightX = useSpring(0.5, SPRING_CONFIG);
 	const noiseWeightY = useSpring(0.3, SPRING_CONFIG);
 	const noiseWeightZ = useSpring(0.2, SPRING_CONFIG);
-	const blur = useSpring(4, SPRING_CONFIG);
+	const blur = useSpring(14, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color1 = useSpring(COLORS.fruity, SPRING_CONFIG);
+	const color1 = useSpring(COLORS.floral, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color2 = useSpring(COLORS.grassy, SPRING_CONFIG);
+	const color2 = useSpring(COLORS.spicy, SPRING_CONFIG);
 	// @ts-expect-error -- it's possible but motion says no
-	const color3 = useSpring(COLORS.nutty, SPRING_CONFIG);
+	const color3 = useSpring(COLORS.spicy, SPRING_CONFIG);
 	const alpha1 = useSpring(1, SPRING_CONFIG);
 	const alpha2 = useSpring(1, SPRING_CONFIG);
 	const alpha3 = useSpring(1, SPRING_CONFIG);
@@ -67,14 +67,17 @@ export const Canvas = () => {
 		]);
 		webFragRef.current.setUniform(
 			"u_color_0",
+			// @ts-expect-error -- it's possible but motion says no
 			colorToVec4(color1.get(), alpha1.get()),
 		);
 		webFragRef.current.setUniform(
 			"u_color_1",
+			// @ts-expect-error -- it's possible but motion says no
 			colorToVec4(color2.get(), alpha2.get()),
 		);
 		webFragRef.current.setUniform(
 			"u_color_2",
+			// @ts-expect-error -- it's possible but motion says no
 			colorToVec4(color3.get(), alpha3.get()),
 		);
 
@@ -136,10 +139,13 @@ export const Canvas = () => {
 
 	return (
 		<div className='wrapper'>
-			<div className='inner'>
+			<div className='canvasContainer'>
 				<motion.canvas
 					ref={ref}
-					style={{ filter: useMotionTemplate`blur(${blur}px)` }}
+					className='canvas'
+					style={{
+						filter: useMotionTemplate`blur(${blur}px)`,
+					}}
 				/>
 			</div>
 
