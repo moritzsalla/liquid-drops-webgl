@@ -1,5 +1,4 @@
 import type { MotionValue } from "framer-motion";
-import { COLORS } from "../config";
 import { memo } from "react";
 
 type ColorControlProps = {
@@ -10,21 +9,14 @@ type ColorControlProps = {
 export const ColorControl = ({ label, color }: ColorControlProps) => (
 	<div>
 		<label>{label}</label>
-		{Object.entries(COLORS).map(([name, value]) => (
-			<button
-				key={name}
-				style={{ backgroundColor: value }}
-				onClick={() => {
-					color.set(value);
-				}}
-			>
-				{name}
-			</button>
-		))}
+		<input
+			type='color'
+			value={color.get()}
+			onChange={(e) => color.set(e.target.value)}
+		/>
 	</div>
 );
 
-// OpacityControl.tsx
 type OpacityControlProps = {
 	label: string;
 	value: MotionValue<number>;
@@ -44,7 +36,6 @@ export const OpacityControl = ({ label, value }: OpacityControlProps) => (
 	</div>
 );
 
-// NoiseControl.tsx
 type NoiseControlProps = {
 	label: string;
 	value: MotionValue<number>;
@@ -71,7 +62,6 @@ export const NoiseControl = ({
 	</div>
 );
 
-// Controls.tsx
 type ControlsProps = {
 	color1: MotionValue<string>;
 	color2: MotionValue<string>;
@@ -180,5 +170,3 @@ export const Controls = memo(
 		);
 	},
 );
-
- 
